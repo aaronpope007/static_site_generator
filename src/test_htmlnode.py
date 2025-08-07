@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     # Test case 1: Test props_to_html with multiple properties
@@ -50,6 +50,62 @@ class TestHTMLNode(unittest.TestCase):
         with self.assertRaises(ValueError):
             node = LeafNode("p", None)
             node.to_html()
+
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    # --- New Unit Tests for ParentNode ---
+
+        # Test case 8: Test to_html for a ParentNode with multiple children
+        def test_parent_node_with_multiple_children(self):
+            child_node1 = LeafNode("span", "Hello")
+            child_node2 = LeafNode("b", "World")
+            parent_node = ParentNode("p", [child_node1, child_node2])
+            self.assertEqual(parent_node.to_html(), "<p><span>Hello</span><b>World</b></p>")
+
+        # Test case 9: Test to_html for a ParentNode with props
+        def test_parent_node_with_props(self):
+            child_node = LeafNode("span", "Content")
+            parent_node = ParentNode(
+                "div", [child_node], {"class": "container", "id": "main"}
+            )
+            self.assertEqual(
+                parent_node.to_html(),
+                '<div class="container" id="main"><span>Content</span></div>',
+            )
+
+        # Test case 10: Test that to_html raises a ValueError if the tag is missing
+        def test_parent_node_no_tag_raises_error(self):
+            with self.assertRaises(ValueError):
+                parent_node = ParentNode(None, [LeafNode("span", "child")])
+                parent_node.to_html()
+
+        # Test case 11: Test that to_html raises a ValueError if children are missing
+        def test_parent_node_no_children_raises_error(self):
+            with self.assertRaises(ValueError):
+                parent_node = ParentNode("div", None)
+                parent_node.to_html()
+
+        # Test case 12: Test a complex, nested ParentNode structure
+        def test_to_html_nested_parent_nodes(self):
+            grandchild_node = LeafNode("a", "Click here", {"href": "https://boot.dev"})
+            child_node = ParentNode("p", [grandchild_node])
+            parent_node = ParentNode("body", [child_node], {"style": "font-family: sans-serif;"})
+            self.assertEqual(
+                parent_node.to_html(),
+                '<body style="font-family: sans-serif;"><p><a href="https://boot.dev">Click here</a></p></body>',
+            )
 
 if __name__ == '__main__':
     unittest.main()
