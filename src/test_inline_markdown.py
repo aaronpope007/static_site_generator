@@ -1,5 +1,6 @@
 import unittest
 from inline_markdown import (
+    extract_markdown_links,
     split_nodes_delimiter,
     extract_markdown_images,
 )
@@ -95,6 +96,10 @@ class TestInlineMarkdown(unittest.TestCase):
         ]
         self.assertListEqual(extract_markdown_images(text), expected)
 
+    def test_markdown_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        expected = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        self.assertListEqual(extract_markdown_links(text), expected)
 
 if __name__ == "__main__":
     unittest.main()

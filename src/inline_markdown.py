@@ -23,15 +23,9 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return new_nodes
 
 def extract_markdown_images(text):
-    image_regex = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
-    return image_regex
-    # returns list of tuples
-if __name__ == "__main__":
-    sample_text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
-    print(extract_markdown_images(sample_text))
+    image_tuples = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return image_tuples
 
-# def extract_markdown_links(text):
-#     text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
-#     print(extract_markdown_links(text))
-    # [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
-    #return tuples of anchor text and urls
+def extract_markdown_links(text):
+    link_tuples = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return link_tuples
