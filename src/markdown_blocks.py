@@ -57,13 +57,12 @@ def markdown_to_html_node(markdown):
             block_nodes.append(HTMLNode("p", None, child_nodes, None))
 
         elif block_type == BlockType.HEADING:
-            heading_num = re.match(r'#*', block)
-            cleaned_block = block.lstrip('#')
-            cleaned_block = text_to_textnodes(cleaned_block)
+            heading_num = block.count('#')
+            block = text_to_textnodes(block.lstrip('#').strip())
             child_nodes = []
             for text_node in block:
                 child_nodes.append(text_node_to_html_node(text_node))
-                block_nodes.append(HTMLNode(f'h{heading_num}', None, child_nodes, None))
+            block_nodes.append(HTMLNode(f'h{heading_num}', None, child_nodes, None))
 
 
     return HTMLNode("div", None, block_nodes, None)
