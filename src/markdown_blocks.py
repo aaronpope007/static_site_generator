@@ -2,7 +2,7 @@ import re
 from enum import Enum
 from htmlnode import HTMLNode
 from inline_markdown import text_to_textnodes
-from textnode import text_node_to_html_node
+from textnode import text_node_to_html_node, TextNode
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -64,16 +64,16 @@ def markdown_to_html_node(markdown):
                 child_nodes.append(text_node_to_html_node(text_node))
             block_nodes.append(HTMLNode(f'h{heading_num}', None, child_nodes, None))
 
+        elif block_type == BlockType.CODE:
+            block = block[3:-3]
+            code_block = TextNode(block, 'text')
+            code_to_html_node = text_node_to_html_node(code_block)
+            code_node = HTMLNode("code", None, [code_to_html_node], None)
+            block_nodes.append(HTMLNode("pre", None, [code_node], None))
+
+
+
+
 
     return HTMLNode("div", None, block_nodes, None)
-    #need: heading, code, quote, etc
-    # 1. split markdown into blocks
-    # 2. based on type of block, create a new HTMLNode w proper data
-    # 3. assign proper child HTMLNode objects to the block node
-    #   use text to children(text) function
-    #   textnode ->htmlnode
-    # 4. code block is special case - dont use text to children
-    #
-    # 5. make all block nodes children under a single
-    # parent HTML node (which should just be a div) and return it
-    # 6. make unit tests
+    #need: code, quote, unordered list, ordered list
