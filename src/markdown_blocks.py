@@ -91,6 +91,19 @@ def markdown_to_html_node(markdown):
                 list_item_nodes.append(li_node)
             block_nodes.append(HTMLNode('ul', None, list_item_nodes, None))
 
+        elif block_type == BlockType.ORDERED_LIST:
+            lines = block.split('\n')
+            list_item_nodes = []
+            for line in lines:
+                item_text = re.sub(r'^\d+\.\s*', '', line)
+                if not item_text:
+                    continue
+                text_nodes = text_to_textnodes(item_text)
+                li_children = [text_node_to_html_node(tn) for tn in text_nodes]
+                li_node = HTMLNode('li', None, li_children, None)
+                list_item_nodes.append(li_node)
+            block_nodes.append(HTMLNode('ol', None, list_item_nodes, None))
+
 
     return HTMLNode("div", None, block_nodes, None)
     #need:  ordered list
