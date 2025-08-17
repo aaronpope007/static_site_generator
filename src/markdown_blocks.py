@@ -73,12 +73,24 @@ def markdown_to_html_node(markdown):
 
         elif block_type == BlockType.QUOTE:
             cleaned_lines = [line.lstrip('> ').lstrip() for line in block.split('\n')]
-            joined_text = ' '.join(cleaned_lines)
+            joined_text = ' '.join(cleaned_lines)  # or '\n'.join(cleaned_lines) if you want to preserve line breaks
             text_nodes = text_to_textnodes(joined_text)
             child_nodes = [text_node_to_html_node(tn) for tn in text_nodes]
             block_nodes.append(HTMLNode("blockquote", None, child_nodes, None))
 
+        elif block_type == BlockType.UNORDERED_LIST:
+            lines = block.split('\n')
+            list_item_nodes = []
+            for line in lines:
+                item_text = line.lstrip('-').lstrip()
+                if not item_text:
+                    continue
+                text_nodes = text_to_textnodes(item_text)
+                li_children = [text_node_to_html_node(tn) for tn in text_nodes]
+                li_node = HTMLNode('li', None, li_children, None)
+                list_item_nodes.append(li_node)
+            block_nodes.append(HTMLNode('ul', None, list_item_nodes, None))
 
 
     return HTMLNode("div", None, block_nodes, None)
-    #need: quote, unordered list, ordered list
+    #need:  ordered list
