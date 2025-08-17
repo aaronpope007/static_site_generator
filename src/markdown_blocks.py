@@ -71,9 +71,14 @@ def markdown_to_html_node(markdown):
             code_node = HTMLNode("code", None, [code_to_html_node], None)
             block_nodes.append(HTMLNode("pre", None, [code_node], None))
 
-
+        elif block_type == BlockType.QUOTE:
+            cleaned_lines = [line.lstrip('> ').lstrip() for line in block.split('\n')]
+            joined_text = ' '.join(cleaned_lines)
+            text_nodes = text_to_textnodes(joined_text)
+            child_nodes = [text_node_to_html_node(tn) for tn in text_nodes]
+            block_nodes.append(HTMLNode("blockquote", None, child_nodes, None))
 
 
 
     return HTMLNode("div", None, block_nodes, None)
-    #need: code, quote, unordered list, ordered list
+    #need: quote, unordered list, ordered list
