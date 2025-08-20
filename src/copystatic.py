@@ -1,20 +1,16 @@
 import os
 import shutil
 
-def copy_static(source_path, dest_path):
-    if os.path.exists(dest_path):
-        shutil.rmtree(dest_path)
-    os.mkdir(dest_path)
 
-    items_to_copy = os.listdir(source_path)
+def copy_files_recursive(source_dir_path, dest_dir_path):
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path)
 
-    for item in items_to_copy:
-        from_path = os.path.join(source_path, item)
-        to_path = os.path.join(dest_path, item)
-
+    for filename in os.listdir(source_dir_path):
+        from_path = os.path.join(source_dir_path, filename)
+        dest_path = os.path.join(dest_dir_path, filename)
+        print(f" * {from_path} -> {dest_path}")
         if os.path.isfile(from_path):
-            print(f'from path is {from_path}')
-            print(f'to path is {to_path}')
-            shutil.copy(from_path, to_path)
+            shutil.copy(from_path, dest_path)
         else:
-            copy_static(from_path, to_path)
+            copy_files_recursive(from_path, dest_path)
