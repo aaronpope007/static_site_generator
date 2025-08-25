@@ -1,5 +1,6 @@
 from markdown_blocks import markdown_to_html_node
 from extract_title import extract_title
+import os
 
 def generate_page(from_path, template_path, dest_path):
         print(f'Generating page from {from_path} to {dest_path} using {template_path}.')
@@ -19,7 +20,13 @@ def generate_page(from_path, template_path, dest_path):
         title = extract_title(markdown_content)
 
         # replace {{ Title }} and {{ Content }} placeholders in the template with the HTML and title generated
-        result_html = template_content.replace('{{ Title }}', f'{title}')
-        result_html = template_content.replace('{{ Content }}', f'{html_content}')
+        replace_title = template_content.replace('{{ Title }}', f'{title}')
+        result_html = replace_title.replace('{{ Content }}', f'{html_content}')
 
         # write the new full HTML page to a file at dest_path, create new directories if they don't FileExistsError
+        destination = os.path.dirname(dest_path)
+        if destination:
+            os.makedirs(destination, exist_ok=True)
+
+        with open(dest_path, "w") as f:
+            f.write(result_html)
