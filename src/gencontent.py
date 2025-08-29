@@ -1,44 +1,48 @@
-from markdown_blocks import markdown_to_html_node
-from extract_title import extract_title
-from pathlib import Path
 import os
+from pathlib import Path
+from markdown_blocks import markdown_to_html_node
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     for filename in os.listdir(dir_path_content):
         from_path = os.path.join(dir_path_content, filename)
         dest_path = os.path.join(dest_dir_path, filename)
         if os.path.isfile(from_path):
             dest_path = Path(dest_path).with_suffix(".html")
-            generate_page(from_path, template_path, dest_path)
+            generate_page(from_path, template_path, dest_path, basepath)
         else:
-            generate_pages_recursive(from_path, template_path, dest_path)
+            generate_pages_recursive(from_path, template_path, dest_path, basepath)
 
 
-def generate_page(from_path, template_path, dest_path):
-        print(f'Generating page from {from_path} to {dest_path} using {template_path}.')
+def generate_page(from_path, template_path, dest_path, basepath):
+    print(f" * {from_path} {template_path} -> {dest_path}")
+    from_file = open(from_path, "r")
+    markdown_content = from_file.read()
+    from_file.close()
 
-        #read markdown file at from path and store contents to variable
-        with open(from_path, 'r') as file:
-            markdown_content = file.read()
+    template_file = open(template_path, "r")
+    template = template_file.read()
+    template_file.close()
 
-        # read template file at template path and store contnets to var
-        with open(template_path, 'r') as file:
-            template_content = file.read()
+    node = markdown_to_html_node(markdown_content)
+    html = node.to_html()
 
-        # use markdown_to_html_node function and .to_html() method to convert the markdown file to an HTML string.
-        html_content = markdown_to_html_node(markdown_content).to_html()
+    title = extract_title(markdown_content)
+    template = template.replace("{{ Title }}", title)
+    template = template.replace("{{ Content }}", html)
+    template = template.replace('href="/', 'href="' + basepath)
+    template = template.replace('src="/', 'src="' + basepath)
 
-        # use extract_title fx to grab title
-        title = extract_title(markdown_content)
+    dest_dir_path = os.path.dirname(dest_path)
+    if dest_dir_path != "":
+        os.makedirs(dest_dir_path, exist_ok=True)
+    to_file = open(dest_path, "w")
+    to_file.write(template)
 
-        # replace {{ Title }} and {{ Content }} placeholders in the template with the HTML and title generated
-        replace_title = template_content.replace('{{ Title }}', f'{title}')
-        result_html = replace_title.replace('{{ Content }}', f'{html_content}')
 
-        # write the new full HTML page to a file at dest_path, create new directories if they don't FileExistsError
-        destination = os.path.dirname(dest_path)
-        if destination:
-            os.makedirs(destination, exist_ok=True)
-
-        with open(dest_path, "w") as f:
-            f.write(result_html)
+def extract_title(md):
+    lines = md.split("\n")
+    for line in lines:
+        if line.startswith("# "):
+            return line[2:]
+    raise ValueError("no title found")
